@@ -154,6 +154,42 @@ class WhatsApp(object):
         logging.error(f"Response: {r.json()}")
         return r.json()
 
+    def send_reaction(
+        self, emoji, message_id, recipient_id, recipient_type="individual"
+    ):
+        """
+         Sends a reaction message to a WhatsApp user's message
+
+         Args:
+                emoji[str]: Emoji to become a reaction to a message. Ex.: '\uD83D\uDE00' (😀)
+                message_id[str]: Message id for a reaction to be attached to
+                recipient_id[str]: Phone number of the user with country code without +
+                recipient_type[str]: Type of the recipient, either individual or group
+
+        Example:
+            ```python
+            >>> from whatsapp import WhatsApp
+            >>> whatsapp = WhatsApp(token, phone_number_id)
+            >>> whatsapp.send_reaction("\uD83D\uDE00", "wamid.HBgLM...", "5511999999999")
+
+        """
+        data = {
+            "messaging_product": "whatsapp",
+            "recipient_type": recipient_type,
+            "to": recipient_id,
+            "type": "reaction",
+            "reaction": {"message_id": message_id, "emoji": emoji},
+        }
+        logging.info(f"Sending reaction to number {recipient_id} message id {message_id}")
+        r = requests.post(f"{self.url}", headers=self.headers, json=data)
+        if r.status_code == 200:
+            logging.info(f"Reaction sent to number {recipient_id} message id {message_id}")
+            return r.json()
+        logging.info(f"Message not sent  to number {recipient_id} message id {message_id}")
+        logging.info(f"Status code: {r.status_code}")
+        logging.error(f"Response: {r.json()}")
+        return r.json()
+
     def reply_to_message(
         self, message_id: str, recipient_id: str, message: str, preview_url: bool = True
     ):
@@ -474,7 +510,7 @@ class WhatsApp(object):
         return r.json()
 
     def send_document(
-        self, document, recipient_id, caption=None, link=True
+        self, document, recipient_id, caption=None, link=True, filename=None
     ) -> Dict[Any, Any]:
         """ "
         Sends a document message to a WhatsApp user
@@ -485,6 +521,7 @@ class WhatsApp(object):
             recipient_id[str]: Phone number of the user with country code wihout +
             caption[str]: Caption of the document
             link[bool]: Whether to send a document id or a document link, True means that the document is an id, False means that the document is a link
+            filename[str]: Name of the file
 
         Example:
             >>> from whatsapp import WhatsApp
@@ -496,7 +533,7 @@ class WhatsApp(object):
                 "messaging_product": "whatsapp",
                 "to": recipient_id,
                 "type": "document",
-                "document": {"link": document, "caption": caption},
+                "document": {"link": document, "caption": caption, "filename": filename},
             }
         else:
             data = {
@@ -651,10 +688,10 @@ class WhatsApp(object):
             f"{self.v15_base_url}/{self.phone_number_id}/messages",
             headers=headers,
             json=json_data,
-        ).json()
+        )
         if response.status_code == 200:
             logging.info(f"Message {message_id} marked as read")
-            return response
+            return response.json()
         logging.info(f"Error marking message {message_id} as read")
         logging.info(f"Status code: {response.status_code}")
         logging.info(f"Response: {response.json()}")
@@ -782,7 +819,7 @@ class WhatsApp(object):
         """
         r = requests.get(media_url, headers=self.headers)
         content = r.content
-        extension = mime_type.split("/")[1]
+        extension = mime_type.split("/")[1].split(";")[0].strip()
         # create a temporary file
         try:
 

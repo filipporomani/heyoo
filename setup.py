@@ -12,17 +12,17 @@ extras = {"test": test_deps}
 
 setup(
     name="heyoo",
-    version="0.0.8",
+    version="0.1.2",
     description="Opensource Python wrapper to WhatsApp Cloud API",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Neurotech-HQ/heyoo",
-    download_url="https://github.com/Neurotech-HQ/heyoo/archive/refs/tags/v0.2.tar.gz",
+    download_url="https://github.com/Neurotech-HQ/heyoo/archive/refs/tags/v0.4.tar.gz",
     author="Jordan Kalebu",
     author_email="isaackeinstein@gmail.com",
     license="MIT",
     packages=["heyoo"],
-    install_requires=["requests>=2.28.1", "requests-toolbelt>=0.9.1", "colorama", "typing"],
+    install_requires=["requests>=2.28.1", "requests-toolbelt>=0.9.1", "colorama", "typing;python_version<'3.5'"],
     tests_require=test_deps,
     extras_require=extras,
     keywords=[
